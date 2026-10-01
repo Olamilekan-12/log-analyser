@@ -28,6 +28,16 @@ func parseLine(line string) (LogEntry, error) {
 	}, nil
 }
 
+func countErrors(entries []LogEntry) map[string]int {
+	counts := make(map[string]int)
+	for _, entry := range entries {
+		if entry.Level == "ERROR" {
+			counts[entry.Message]++
+		}
+	}
+	return counts
+}
+
 func readEntries(fp string) ([]LogEntry, error) {
 	file, err := os.Open(fp)
 	if err != nil {
@@ -62,5 +72,7 @@ func main() {
 		os.Exit(1)
 	}
 	fmt.Println(len(entries))
+	errorCounts := countErrors(entries)
+	fmt.Println(errorCounts)
 
 }

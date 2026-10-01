@@ -28,27 +28,26 @@ func parseLine(line string) (LogEntry, error) {
 	}, nil
 }
 
-func countLine(fp string) (int, error) {
+func readEntries(fp string) ([]LogEntry, error) {
 	file, err := os.Open(fp)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 	defer file.Close()
 	scanner := bufio.NewScanner(file)
-	var lineCount int
+	var entries []LogEntry
 	for scanner.Scan() {
-		lineCount++
 		entry, err := parseLine(scanner.Text())
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "%v\n", err)
 			continue
 		}
-		fmt.Println(entry)
+		entries = append(entries, entry)
 	}
 	if err := scanner.Err(); err != nil {
-		return 0, err
+		return nil, err
 	}
-	return lineCount, nil
+	return entries, nil
 }
 
 func main() {
@@ -57,10 +56,11 @@ func main() {
 		fmt.Fprintln(os.Stderr, "usage: loganalyzer <logfile>")
 		os.Exit(1)
 	}
-	lines, err := countLine(args[1])
+	entries, err := readEntries(args[1])
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error counting file %v\n", err)
+		fmt.Fprintf(os.Stderr, "error reading log: %v\n", err)
 		os.Exit(1)
 	}
-	fmt.Println(lines)
+	fmt.Println(len(entries))
+
 }

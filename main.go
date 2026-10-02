@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"sort"
 	"strings"
 )
 
@@ -12,6 +13,11 @@ type LogEntry struct {
 	IP        string
 	Level     string
 	Message   string
+}
+
+type ErrorCount struct {
+	Message string
+	Count   int
 }
 
 func parseLine(line string) (LogEntry, error) {
@@ -26,6 +32,17 @@ func parseLine(line string) (LogEntry, error) {
 		Level:     linesSlice[2],
 		Message:   messageExtraction,
 	}, nil
+}
+
+func toSlice(counts map[string]int) []ErrorCount {
+	var result []ErrorCount
+	for message, count := range counts {
+		result = append(result, ErrorCount{
+			Message: message,
+			Count:   count,
+		})
+	}
+	return result
 }
 
 func countErrors(entries []LogEntry) map[string]int {
@@ -73,6 +90,12 @@ func main() {
 	}
 	fmt.Println(len(entries))
 	errorCounts := countErrors(entries)
-	fmt.Println(errorCounts)
-
+	errorSlice := toSlice(errorCounts)
+	sort.Slice(errorSlice, func(i, j int) bool {
+		if errorSlice[i].Count > errorSlice[j].Count {
+			return errorSlice[i].Count > errorSlice[j].Count
+		}
+		return errorSlice[i].Message < errorSlice[j].Message
+	})
+	fmt.Println(errorSlice)
 }

@@ -88,7 +88,6 @@ func main() {
 		fmt.Fprintf(os.Stderr, "error reading log: %v\n", err)
 		os.Exit(1)
 	}
-	fmt.Println(len(entries))
 	errorCounts := countErrors(entries)
 	errorSlice := toSlice(errorCounts)
 	sort.Slice(errorSlice, func(i, j int) bool {
@@ -97,5 +96,7 @@ func main() {
 		}
 		return errorSlice[i].Message < errorSlice[j].Message
 	})
-	fmt.Println(errorSlice)
+	for _, e := range errorSlice {
+		fmt.Printf("%3d %s\n", e.Count, e.Message)
+	}
 }
